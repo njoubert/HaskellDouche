@@ -5,8 +5,11 @@ import Network
 import Data.Time.LocalTime
 
 data RequestType = GET | POST deriving (Show)
-data Request = Request { rtype :: RequestType, path :: String, options :: [(String,String)] } deriving (Show)
+data Request = Request { rtype :: RequestType, path :: String, options :: [(String,String)] }
 data Response = Response { version :: String, statuscode :: Int }
+
+instance Show Request where
+	show r = "Request { " ++ show((rtype r)) ++ " " ++ (path r)  ++ (foldl (\acc (k,v) -> acc ++ "\n  " ++ k ++ ": " ++ v) "" (options r)) ++ "\n}"
 
 instance Show Response where
 	show r = version(r) ++ " " ++ show(statuscode(r)) ++ " " ++ (case statuscode(r) of
@@ -24,7 +27,7 @@ respond request handle = do
 	let response = Response {version = "HTTP/1.1", statuscode = 200}
 	hPutStr handle $ show(response)
 	time <- getZonedTime
-	hPutStr handle $ "Haskell says HELLO.\nThe time is currently " ++ show(time)
+	hPutStr handle $ "Haskell says HELLO.\nThe time is currently " ++ show(time) ++ "\n\n\nHere is some info from your session:\n" ++ show(request)
 
 --- This should really validate input or something. Separate validator? Or as-we-go?
 parseRequestHelper :: ([String], [(String,String)]) -> [(String,String)]
