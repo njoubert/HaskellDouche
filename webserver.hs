@@ -5,7 +5,7 @@ import Network
 import Data.Time.LocalTime
 
 data RequestType = GET | POST deriving (Show)
-data Request = Request { rtype :: RequestType, path :: String } deriving (Show)
+data Request = Request { rtype :: RequestType, path :: String, options :: [(String,String)] } deriving (Show)
 data Response = Response { version :: String, statuscode :: Int }
 
 instance Show Response where
@@ -22,13 +22,11 @@ respond request handle = do
 	hPutStr handle $ "Haskell says HELLO.\nThe time is currently " ++ show(time)
 
 --- expects something like "GET / HTTP/1.1"
-createHeadRequest :: String -> Request
-createHeadRequest line = case words(line) of
-	["GET",p,_] -> Request {rtype = GET, path=p}
-	["POST",p,_] -> Request {rtype = POST, path=p}
-
 parseRequest :: [String] -> Request
-parseRequest received = createHeadRequest(head(received))
+parseRequest headerStrs = (\optionParser -> case (words (head headerStrs)) of
+	["GET",p,_] -> Request {rtype = GET, path=p, options = (optionParser (tail headerStrs))}
+	["POST",p,_] -> Request {rtype = POST, path=p, options = (optionParser (tail headerStrs))}) 
+	(\headerStrs -> [])
 
 handleAccept :: Handle -> String -> IO ()
 handleAccept handle hostname = do 
