@@ -26,20 +26,19 @@ respond request handle = do
 	time <- getZonedTime
 	hPutStr handle $ "Haskell says HELLO.\nThe time is currently " ++ show(time)
 
---- expects something like "GET / HTTP/1.1"
 parseRequestHelper :: ([String], [(String,String)]) -> [(String,String)]
-parseRequestHelper (ins, accum) = case ins of
-	_ -> accum
-	
+parseRequestHelper ((l:rest), accum) = parseRequestHelper(rest, accum ++ [(reverse . tail . reverse . head . words $ l, unwords . tail . words $ l)] )
+parseRequestHelper ([], accum) = accum
+
 parseRequest :: [String] -> Request
 parseRequest lns = case (words (head lns)) of
 	[t,p,_] -> Request {rtype=(fromString t), path=p, options=parseRequestHelper((tail lns),[])}
-
 
 handleAccept :: Handle -> String -> IO ()
 handleAccept handle hostname = do 
 	putStrLn $ "Handling request from " ++ hostname
 	recvd <- hGetContents handle
+	putStrLn recvd
 	let request = (parseRequest $ lines(recvd))
 	respond request handle
 	return ()
