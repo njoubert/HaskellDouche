@@ -1,0 +1,18 @@
+HaskellDouche
+------------------
+
+This is me playing around with Haskell.
+
+Why the name? I enjoy the study and practice of Programming Languages, but it seems like touching Haskell means being classified as a PL Douche, Elitist or (God forbid) "unpractical". So I figured I'd just go with that.
+
+
+--- Contents
+
+webserver.hs
+	Uses low-level sockets to accept requests and create responses
+	
+LYAH_typeclasses.hs
+	Learn You A Haskell For Great Good, typeclass chapter musings
+	
+messing_around.hs
+	From an initial homework for Stanford's CS242, trees and currying
