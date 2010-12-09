@@ -26,9 +26,12 @@ respond request handle = do
 	time <- getZonedTime
 	hPutStr handle $ "Haskell says HELLO.\nThe time is currently " ++ show(time)
 
+--- This should really validate input or something. Separate validator? Or as-we-go?
 parseRequestHelper :: ([String], [(String,String)]) -> [(String,String)]
-parseRequestHelper ((l:rest), accum) = parseRequestHelper(rest, accum ++ [(reverse . tail . reverse . head . words $ l, unwords . tail . words $ l)] )
 parseRequestHelper ([], accum) = accum
+parseRequestHelper ((l:rest), accum) 
+	| (length (words l)) < 2 = accum
+	| otherwise = parseRequestHelper(rest, accum ++ [(reverse . tail . reverse . head . words $ l, unwords . tail . words $ l)] )
 
 parseRequest :: [String] -> Request
 parseRequest lns = case (words (head lns)) of
@@ -38,8 +41,8 @@ handleAccept :: Handle -> String -> IO ()
 handleAccept handle hostname = do 
 	putStrLn $ "Handling request from " ++ hostname
 	recvd <- hGetContents handle
-	putStrLn recvd
 	let request = (parseRequest $ lines(recvd))
+	putStrLn $ show request
 	respond request handle
 	return ()
 	
