@@ -14,6 +14,11 @@ instance Show Response where
 		200 -> "OK"
 		404 -> "Not Found") ++ "\r\n\r\n"
 
+fromString :: String -> RequestType
+fromString t = case t of
+	"GET" -> GET
+	"POST" -> POST
+
 respond :: Request -> Handle -> IO ()
 respond request handle = do
 	let response = Response {version = "HTTP/1.1", statuscode = 200}
@@ -22,40 +27,20 @@ respond request handle = do
 	hPutStr handle $ "Haskell says HELLO.\nThe time is currently " ++ show(time)
 
 --- expects something like "GET / HTTP/1.1"
-parseRequestHelper :: ([String], Request) -> Request
-parseRequestHelper (ins, r) = case ins of
-	_ -> r
+parseRequestHelper :: ([String], [(String,String)]) -> [(String,String)]
+parseRequestHelper (ins, accum) = case ins of
+	_ -> accum
 	
 parseRequest :: [String] -> Request
-parseRequest lns = parseRequestHelper((tail lns), (case (words (head lns)) of
-	["GET",p,_] -> Request {rtype=GET,path=p,options=[]}
-	["POST",p,_] -> Request {rtype=POST,path=p,options=[]}))
-	
+parseRequest lns = case (words (head lns)) of
+	[t,p,_] -> Request {rtype=(fromString t), path=p, options=parseRequestHelper((tail lns),[])}
 
--- parseRequest :: [String] -> Request
--- parseRequest headerStrs = Request {
--- rtype=(typeCreator typeLine), 
--- path=(pathCreator typeLine), 
--- options=(optionCreator optionLines)
--- }
--- 	where
--- 		typeLine = (head headerStrs)
--- 		optionLines = (tail headerStrs)
--- 		typeCreator = (\line -> case (words line) of
--- 			["GET",p,_] -> GET
--- 			["POST",p,_] -> POST)
--- 		pathCreator = (\line -> case (words line) of
--- 			[_,p,_] -> p
--- 			[_] -> "")
--- 		optionCreator = (\headerStrs -> [])
-		
-	
 
 handleAccept :: Handle -> String -> IO ()
 handleAccept handle hostname = do 
 	putStrLn $ "Handling request from " ++ hostname
 	recvd <- hGetContents handle
-	let request = parseRequest(lines(recvd))
+	let request = (parseRequest $ lines(recvd))
 	respond request handle
 	return ()
 	
