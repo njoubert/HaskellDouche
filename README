@@ -9,7 +9,9 @@ Why the name? I enjoy the study and practice of Programming Languages, but it se
 --- Contents
 
 webserver.hs
-	Uses low-level sockets to accept requests and create responses
+	Uses low-level sockets to accept requests and create responses.
+	> ghc --make webserver.hs
+	> ./webserver
 	
 LYAH_typeclasses.hs
 	Learn You A Haskell For Great Good, typeclass chapter musings
