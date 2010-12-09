@@ -22,28 +22,32 @@ respond request handle = do
 	hPutStr handle $ "Haskell says HELLO.\nThe time is currently " ++ show(time)
 
 --- expects something like "GET / HTTP/1.1"
--- parseRequest :: [String] -> Request
--- parseRequest headerStrs = (\optionParser -> case (words (head headerStrs)) of
--- 	["GET",p,_] -> Request {rtype = GET, path=p, options = (optionParser (tail headerStrs))}
--- 	["POST",p,_] -> Request {rtype = POST, path=p, options = (optionParser (tail headerStrs))}) 
--- 	(\headerStrs -> [])
--- 	
+parseRequestHelper :: ([String], Request) -> Request
+parseRequestHelper (ins, r) = case ins of
+	_ -> r
+	
 parseRequest :: [String] -> Request
-parseRequest headerStrs = Request {
-rtype=(typeCreator typeLine), 
-path=(pathCreator typeLine), 
-options=(optionCreator optionLines)
-}
-	where
-		typeLine = (head headerStrs)
-		optionLines = (tail headerStrs)
-		typeCreator = (\line -> case (words line) of
-			["GET",p,_] -> GET
-			["POST",p,_] -> POST)
-		pathCreator = (\line -> case (words line) of
-			[_,p,_] -> p
-			[_] -> "")
-		optionCreator = (\headerStrs -> [])
+parseRequest lns = parseRequestHelper((tail lns), (case (words (head lns)) of
+	["GET",p,_] -> Request {rtype=GET,path=p,options=[]}
+	["POST",p,_] -> Request {rtype=POST,path=p,options=[]}))
+	
+
+-- parseRequest :: [String] -> Request
+-- parseRequest headerStrs = Request {
+-- rtype=(typeCreator typeLine), 
+-- path=(pathCreator typeLine), 
+-- options=(optionCreator optionLines)
+-- }
+-- 	where
+-- 		typeLine = (head headerStrs)
+-- 		optionLines = (tail headerStrs)
+-- 		typeCreator = (\line -> case (words line) of
+-- 			["GET",p,_] -> GET
+-- 			["POST",p,_] -> POST)
+-- 		pathCreator = (\line -> case (words line) of
+-- 			[_,p,_] -> p
+-- 			[_] -> "")
+-- 		optionCreator = (\headerStrs -> [])
 		
 	
 
