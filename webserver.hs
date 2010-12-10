@@ -24,6 +24,7 @@ fromString t = case t of
 
 respond :: Request -> Handle -> IO ()
 respond request handle = do
+	putStrLn $ show request
 	let response = Response {version = "HTTP/1.1", statuscode = 200}
 	hPutStr handle $ show(response)
 	time <- getZonedTime
@@ -43,9 +44,7 @@ parseRequest lns = case (words (head lns)) of
 handleAccept :: Handle -> String -> IO ()
 handleAccept handle hostname = do 
 	putStrLn $ "Handling request from " ++ hostname
-	recvd <- hGetContents handle
-	let request = (parseRequest $ lines(recvd))
-	putStrLn $ show request
+	request <- fmap (parseRequest . lines) (hGetContents handle)
 	respond request handle
 	return ()
 	
